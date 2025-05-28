@@ -1,4 +1,5 @@
 import { type Page, type Locator, expect } from '@playwright/test';
+import logger from '../utils/logger'; // Import the logger
 
 // Define an interface for the data structure from Excel
 export interface FormRowData {
@@ -32,7 +33,7 @@ export class ChallengePage {
       const count = await labelDivs.count();
 
       if (count === 0) {
-        console.warn(`Group Anchor Strategy: Label div.content with exact text "${labelText}" not found.`);
+        logger.warn(`Group Anchor Strategy: Label div.content with exact text "${labelText}" not found.`);
         return null;
       }
 
@@ -49,18 +50,18 @@ export class ChallengePage {
           const inputField = groupAncestor.locator('input, textarea').first(); // Find the first input/textarea within THIS group
 
           if (await inputField.count() > 0 && await inputField.isVisible() && await inputField.isEditable()) {
-            console.log(`Group Anchor Strategy: Found visible and editable input/textarea for label "${labelText}" within its Group.`);
+            logger.info(`Group Anchor Strategy: Found visible and editable input/textarea for label "${labelText}" within its Group.`);
             return inputField;
           }
         }
       }
 
-      console.warn(`Group Anchor Strategy: After checking all ${count} label instance(s) for "${labelText}", no suitable input field was found.`);
+      logger.warn(`Group Anchor Strategy: After checking all ${count} label instance(s) for "${labelText}", no suitable input field was found.`);
       return null;
 
     } catch (error) {
       const e = error as Error;
-      console.warn(`Error during findFieldByLabel for "${labelText}" using Group Anchor strategy: ${e.message}`, e.stack);
+      logger.warn(`Error during findFieldByLabel for "${labelText}" using Group Anchor strategy: ${e.message}`, { stack: e.stack });
       return null;
     }
   }
@@ -83,9 +84,9 @@ export class ChallengePage {
         const field = await this.findFieldByLabel(labelText as string);
         if (field && (await field.isVisible())) {
           await field.fill(data[key]);
-          console.log(`Filled "${labelText}" with "${data[key]}"`);
+          logger.info(`Filled "${labelText}" with "${data[key]}"`);
         } else {
-          console.error(`Failed to find or interact with field for label: "${labelText}"`);
+          logger.error(`Failed to find or interact with field for label: "${labelText}"`);
           throw new Error(`Field not found or not interactable: ${labelText}`);
         }
       }
@@ -106,23 +107,23 @@ export class ChallengePage {
 
     try {
       await popupLocator.waitFor({ state: 'visible', timeout: 500 });
-      console.log('reCAPTCHA popup detected.');
+      logger.info('reCAPTCHA popup detected.');
 
       // Within the visible popup, find the clickable checkbox button.
       const checkboxButton = popupLocator.locator('button.bubble-element.Button.clickable-element[style*="z-index: 9"]');
 
       if (await checkboxButton.count() > 0 && await checkboxButton.isVisible()) {
         await checkboxButton.click();
-        console.log('Clicked the reCAPTCHA checkbox.');
+        logger.info('Clicked the reCAPTCHA checkbox.');
         // Add a small delay or wait for the popup to disappear to ensure the click is processed
         await this.page.waitForTimeout(1000); // Wait 1 second for popup to potentially close or UI to update
       } else {
-        console.warn('reCAPTCHA popup was visible, but the checkbox button was not found or not visible.');
+        logger.warn('reCAPTCHA popup was visible, but the checkbox button was not found or not visible.');
       }
     } catch (error) {
       // This catch block executes if popupLocator.waitFor times out (no popup found)
       // or if any other error occurs during the process.
-      console.log('No active reCAPTCHA popup detected (or timed out waiting for it).');
+      logger.info('No active reCAPTCHA popup detected (or timed out waiting for it).');
     }
   }
 } 
