@@ -12,7 +12,7 @@ const validPassword = process.env.TEST_PASSWORD;
 const exactExpectedErrorMessage = "We didn’t find an account with those login credentials";
 
 test.describe('Automation Challenge', () => {
-  test('should login successfully, or fail with specific alert for invalid credentials', async ({ page }) => {
+  test('should successfully login and complete the end-to-end automation challenge using Excel data', async ({ page }) => {
     if (!validUsername || !validPassword) {
       console.warn('TEST_USERNAME or TEST_PASSWORD not set in .env. Skipping login test.');
       test.skip(true, 'Skipping test due to missing credentials in .env');
