@@ -14,6 +14,7 @@ This project contains an automated test script developed using Playwright with T
 - **Cross-Browser & Multi-Device Testing:** Tests are configured to run across multiple desktop browsers (Chromium, Firefox, WebKit/Safari) and can be easily extended to include mobile device emulation (e.g., Pixel 5, iPhone 14) via `playwright.config.ts`.
 - **Environment Configuration:** Sensitive data like login credentials and the base URL are managed through environment variables (expected in a `.env` file), keeping them separate from the codebase.
 - **TypeScript:** The project is written in TypeScript, providing static typing and improved code maintainability.
+- **Error Handling:** The script incorporates error handling for operations like Excel data reading and form processing, ensuring graceful failure and informative logging when issues occur.
 
 ## Prerequisites
 
@@ -26,8 +27,8 @@ This project contains an automated test script developed using Playwright with T
 1.  **Clone the Repository (if applicable):**
 
     ```bash
-    git clone <repository-url>
-    cd <project-directory>
+    git clone https://github.com/alejoWeb/neostella-challenge.git
+    cd neostella-challenge
     ```
 
 2.  **Install Dependencies:**
