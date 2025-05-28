@@ -13,7 +13,6 @@ export class LoginPage {
     this.signUpOrLoginButton = page.getByRole('button', { name: 'SIGN UP OR LOGIN' });
     this.orLoginButton = page.getByRole('button', { name: 'OR LOGIN', exact: true });
     this.emailInput = page.getByRole('textbox', { name: 'Email' });
-    //this.emailInput = page.getByPlaceholder('Email');
     this.passwordInput = page.getByRole('textbox', { name: 'Password' });
     this.finalLoginButton = page.getByRole('button', { name: 'LOG IN', exact: true });
   } 
