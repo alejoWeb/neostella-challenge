@@ -41,15 +41,25 @@ export default defineConfig({
       use: { ...devices['Desktop Chrome'] },
     },
 
-    // {
-    //   name: 'firefox',
-    //   use: { ...devices['Desktop Firefox'] },
-    // },
+    {
+      name: 'firefox',
+      use: { ...devices['Desktop Firefox'] },
+    },
 
-    // {
-    //   name: 'webkit',
-    //   use: { ...devices['Desktop Safari'] },
-    // },
+    {
+      name: 'webkit',
+      use: { ...devices['Desktop Safari'] },
+    },
+
+    // Mobile configurations
+    /*{
+      name: 'Mobile Chrome - Pixel 5',
+      use: { ...devices['Pixel 5'] },
+    },
+    {
+      name: 'Mobile Safari - iPhone 14',
+      use: { ...devices['iPhone 14'] },
+    }, */
   ],
 
   /* Folder for test artifacts such as screenshots, videos, traces, etc. */
