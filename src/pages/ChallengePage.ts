@@ -1,5 +1,5 @@
 import { type Page, type Locator, expect } from '@playwright/test';
-import logger from '../utils/logger'; // Import the logger
+import logger from '../utils/logger.js';
 
 // Define an interface for the data structure from Excel
 export interface FormRowData {
@@ -9,7 +9,7 @@ export interface FormRowData {
   company_address: string;
   automation_tool: string;
   annual_automation_saving: string;
-  date_of_first_project: string; 
+  date_of_first_project: string;
   [key: string]: string;
 }
 
@@ -28,12 +28,19 @@ export class ChallengePage {
    */
   async findFieldByLabel(labelText: string): Promise<Locator | null> {
     try {
-      const escapedLabelText = labelText.replace(/[.*+?^${}()|[\\\]\\]/g, '\\\\$&');
-      const labelDivs = this.page.locator('div.content').filter({ hasText: new RegExp(`^${escapedLabelText}$`) });
+      const escapedLabelText = labelText.replace(
+        /[.*+?^${}()|[\\\]\\]/g,
+        '\\\\$&',
+      );
+      const labelDivs = this.page
+        .locator('div.content')
+        .filter({ hasText: new RegExp(`^${escapedLabelText}$`) });
       const count = await labelDivs.count();
 
       if (count === 0) {
-        logger.warn(`Group Anchor Strategy: Label div.content with exact text "${labelText}" not found.`);
+        logger.warn(
+          `Group Anchor Strategy: Label div.content with exact text "${labelText}" not found.`,
+        );
         return null;
       }
 
@@ -44,24 +51,39 @@ export class ChallengePage {
         }
 
         // Strategy: From div.content -> ancestor Group -> input/textarea within that Group
-        const groupAncestor = specificLabelDiv.locator('xpath=ancestor::div[contains(@class, "bubble-element") and contains(@class, "Group")][1]');
+        const groupAncestor = specificLabelDiv.locator(
+          'xpath=ancestor::div[contains(@class, "bubble-element") and contains(@class, "Group")][1]',
+        );
 
-        if (await groupAncestor.count() > 0 && await groupAncestor.isVisible()) {
+        if (
+          (await groupAncestor.count()) > 0 &&
+          (await groupAncestor.isVisible())
+        ) {
           const inputField = groupAncestor.locator('input, textarea').first(); // Find the first input/textarea within THIS group
 
-          if (await inputField.count() > 0 && await inputField.isVisible() && await inputField.isEditable()) {
-            logger.info(`Group Anchor Strategy: Found visible and editable input/textarea for label "${labelText}" within its Group.`);
+          if (
+            (await inputField.count()) > 0 &&
+            (await inputField.isVisible()) &&
+            (await inputField.isEditable())
+          ) {
+            logger.info(
+              `Group Anchor Strategy: Found visible and editable input/textarea for label "${labelText}" within its Group.`,
+            );
             return inputField;
           }
         }
       }
 
-      logger.warn(`Group Anchor Strategy: After checking all ${count} label instance(s) for "${labelText}", no suitable input field was found.`);
+      logger.warn(
+        `Group Anchor Strategy: After checking all ${count} label instance(s) for "${labelText}", no suitable input field was found.`,
+      );
       return null;
-
     } catch (error) {
       const e = error as Error;
-      logger.warn(`Error during findFieldByLabel for "${labelText}" using Group Anchor strategy: ${e.message}`, { stack: e.stack });
+      logger.warn(
+        `Error during findFieldByLabel for "${labelText}" using Group Anchor strategy: ${e.message}`,
+        { stack: e.stack },
+      );
       return null;
     }
   }
@@ -79,14 +101,19 @@ export class ChallengePage {
     };
 
     for (const key in data) {
-      if (Object.prototype.hasOwnProperty.call(data, key) && fieldMappings[key]) {
+      if (
+        Object.prototype.hasOwnProperty.call(data, key) &&
+        fieldMappings[key]
+      ) {
         const labelText = fieldMappings[key];
         const field = await this.findFieldByLabel(labelText as string);
         if (field && (await field.isVisible())) {
           await field.fill(data[key]);
           logger.info(`Filled "${labelText}" with "${data[key]}"`);
         } else {
-          logger.error(`Failed to find or interact with field for label: "${labelText}"`);
+          logger.error(
+            `Failed to find or interact with field for label: "${labelText}"`,
+          );
           throw new Error(`Field not found or not interactable: ${labelText}`);
         }
       }
@@ -94,36 +121,50 @@ export class ChallengePage {
   }
 
   async submitForm(): Promise<void> {
-    await expect(this.submitButton, 'Submit button should be visible and enabled').toBeEnabled();
+    await expect(
+      this.submitButton,
+      'Submit button should be visible and enabled',
+    ).toBeEnabled();
     await this.submitButton.click();
-    // This helps ensure the action completed and the page is ready for the next iteration.
-    await this.page.waitForLoadState('domcontentloaded'); // Wait for DOM to be ready after submit
+    // Wait for DOM to be ready to ensure the submit action completed and the page is ready for the next iteration.
+    await this.page.waitForLoadState('domcontentloaded');
   }
 
   // Placeholder for reCAPTCHA handling logic.
   async handleRecaptchaIfNeeded(): Promise<void> {
     // Locate the popup container. We'll use its visibility to determine if the reCAPTCHA is active.
-    const popupLocator = this.page.locator('div.bubble-element.Popup:has-text("Get through this reCAPTCHA to continue")');
+    const popupLocator = this.page.locator(
+      'div.bubble-element.Popup:has-text("Get through this reCAPTCHA to continue")',
+    );
 
     try {
       await popupLocator.waitFor({ state: 'visible', timeout: 500 });
       logger.info('reCAPTCHA popup detected.');
 
       // Within the visible popup, find the clickable checkbox button.
-      const checkboxButton = popupLocator.locator('button.bubble-element.Button.clickable-element[style*="z-index: 9"]');
+      const checkboxButton = popupLocator.locator(
+        'button.bubble-element.Button.clickable-element[style*="z-index: 9"]',
+      );
 
-      if (await checkboxButton.count() > 0 && await checkboxButton.isVisible()) {
+      if (
+        (await checkboxButton.count()) > 0 &&
+        (await checkboxButton.isVisible())
+      ) {
         await checkboxButton.click();
         logger.info('Clicked the reCAPTCHA checkbox.');
-        // Add a small delay or wait for the popup to disappear to ensure the click is processed
-        await this.page.waitForTimeout(1000); // Wait 1 second for popup to potentially close or UI to update
+        // Wait 1 second for the reCAPTCHA click to be processed and UI to update
+        await this.page.waitForTimeout(1000);
       } else {
-        logger.warn('reCAPTCHA popup was visible, but the checkbox button was not found or not visible.');
+        logger.warn(
+          'reCAPTCHA popup was visible, but the checkbox button was not found or not visible.',
+        );
       }
     } catch (error) {
       // This catch block executes if popupLocator.waitFor times out (no popup found)
       // or if any other error occurs during the process.
-      logger.info('No active reCAPTCHA popup detected (or timed out waiting for it).');
+      logger.info(
+        'No active reCAPTCHA popup detected (or timed out waiting for it).',
+      );
     }
   }
-} 
+}

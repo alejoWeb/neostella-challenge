@@ -2,17 +2,19 @@ import winston from 'winston';
 
 const { combine, timestamp, printf, colorize, align } = winston.format;
 
-// Define the logging format
 const logFormat = printf(({ level, message, timestamp: ts, ...metadata }) => {
   let msg = `${ts} [${level}]: ${message} `;
   if (Object.keys(metadata).length > 0) {
     // Only include metadata if it's not empty and not just the 'level' or 'timestamp' symbol keys
     const cleanedMetadata = Object.entries(metadata)
       .filter(([key]) => typeof key !== 'symbol')
-      .reduce((obj, [key, value]) => {
-        obj[key] = value;
-        return obj;
-      }, {} as Record<string, any>);
+      .reduce(
+        (obj, [key, value]) => {
+          obj[key] = value;
+          return obj;
+        },
+        {} as Record<string, any>,
+      );
 
     if (Object.keys(cleanedMetadata).length > 0) {
       msg += JSON.stringify(cleanedMetadata);
@@ -29,7 +31,7 @@ const logger = winston.createLogger({
       format: 'YYYY-MM-DD HH:mm:ss',
     }),
     align(),
-    logFormat
+    logFormat,
   ),
   transports: [
     new winston.transports.Console(),
@@ -37,14 +39,16 @@ const logger = winston.createLogger({
     // new winston.transports.File({ filename: 'combined.log' }),
     // new winston.transports.File({ filename: 'error.log', level: 'error' }),
   ],
-  exceptionHandlers: [ // Optional: Catch unhandled exceptions
+  exceptionHandlers: [
+    // Optional: Catch unhandled exceptions
     new winston.transports.Console({ format: colorize() }),
     // new winston.transports.File({ filename: 'exceptions.log' })
   ],
-  rejectionHandlers: [ // Optional: Catch unhandled promise rejections
+  rejectionHandlers: [
+    // Optional: Catch unhandled promise rejections
     new winston.transports.Console({ format: colorize() }),
     // new winston.transports.File({ filename: 'rejections.log' })
-  ]
+  ],
 });
 
-export default logger; 
+export default logger;
