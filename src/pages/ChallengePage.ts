@@ -138,7 +138,7 @@ export class ChallengePage {
     );
 
     try {
-      await popupLocator.waitFor({ state: 'visible', timeout: 500 });
+      await popupLocator.waitFor({ state: 'visible', timeout: 100 });
       logger.info('reCAPTCHA popup detected.');
 
       // Within the visible popup, find the clickable checkbox button.

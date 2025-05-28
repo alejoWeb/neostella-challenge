@@ -142,6 +142,19 @@ test.describe('Automation Challenge', () => {
           break;
         }
       }
+      // After successfully processing all rows, verify the success rate message
+      const successRateLocator = page
+        .locator('div.content > strong')
+        .filter({ hasText: 'Your success rate is' });
+      await expect(
+        successRateLocator,
+        'Success rate message should be visible',
+      ).toBeVisible({ timeout: 10000 });
+      await expect(
+        successRateLocator,
+        'Success rate message should indicate 100%',
+      ).toContainText('Your success rate is 100%');
+      logger.info('Successfully verified: Your success rate is 100%');
     }
   });
 });
